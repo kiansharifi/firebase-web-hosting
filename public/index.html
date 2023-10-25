@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Website</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="scripts/main.js"></script>
+</head>
+
+<body>
+
+    <!-- Section 1 -->
+    <section id="section1" class="page-section">
+        <h1>Welcome to Section 1</h1>
+        <p>Content for section 1 goes here.</p>
+    </section>
+
+    <!-- Section 2 -->
+    <section id="section2" class="page-section">
+        <h1>Welcome to Section 2</h1>
+        <p>Content for section 2 goes here.</p>
+    </section>
+
+    <!-- Section 3 -->
+    <section id="section3" class="page-section">
+        <h1>Welcome to Section 3</h1>
+        <p>Content for section 3 goes here.</p>
+    </section>
+
+    <!-- Existing Counter for Page Visits -->
+    <section id="counter-section" class="page-section">
+        <h1>Counter</h1>
+        <p>Page Visits: <span id="count">0</span></p>
+        <button id="resetButton">Reset Counter</button>
+        <button id="logButton">Log Page Views</button>
+        <div id="greeting"></div>
+    </section>
+
+    <!-- New Section for "Click me!" button and its counter -->
+    <section id="click-counter-section" class="page-section">
+        <h1>Click Counter</h1>
+        <p>Clicks: <span id="clickCount">0</span></p>
+        <button id="clickCounterButton">Click me!</button>
+    </section>
+
+    <!-- Bouncing Ball Animation -->
+    <section id="animation" class="page-section">
+        <h1>Fun Animation</h1>
+        <div class="bouncing-ball"></div>
+    </section>
+
+    <!-- Theme Switcher -->
+    <section id="color-switcher" class="page-section">
+        <h1>Change Theme</h1>
+        <button id="themeSwitchButton">Switch Color</button>
+    </section>
+
+    <!-- Audio Element for "boop" sound -->
+    <audio id="boop" src="boop.mp3"></audio>
+
+    <script>
+        // Gradient Background Effect
+        document.body.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            const hueRotation = (mouseX / width) * 360;
+            const saturation = (mouseY / height) * 100;
+
+            document.body.style.backgroundImage = `
+                radial-gradient(
+                    circle at ${mouseX}px ${mouseY}px,
+                    hsl(${hueRotation}, ${saturation}%, 50%),
+                    hsl(${(hueRotation + 120) % 360}, ${saturation}%, 50%),
+                    hsl(${(hueRotation + 240) % 360}, ${saturation}%, 50%)
+                )
+            `;
+        });
+
+        // Theme Switcher Logic
+        let darkMode = false;
+
+        function switchTheme() {
+            if (darkMode) {
+                document.body.style.backgroundColor = '';
+                document.body.style.color = '';
+            } else {
+                document.body.style.backgroundColor = '#333';
+                document.body.style.color = '#FFF';
+            }
+            darkMode = !darkMode;
+        }
+
+    </script>
+
+</body>
+
+</html>
