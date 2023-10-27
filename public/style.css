@@ -57,3 +57,11 @@ button:hover {
     font-weight: bold;
     margin-top: 20px;
 }
+
+#gameButton {
+    background-color: #228B22; /* forest green for a game feel */
+}
+
+#gameButton:hover {
+    background-color: #006400; /* dark green on hover */
+}

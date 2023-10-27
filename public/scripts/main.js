@@ -132,6 +132,14 @@ class Main {
             });
         }
 
+        let gameButton = document.getElementById('gameButton');
+if (gameButton) {
+    gameButton.addEventListener('click', () => {
+        // Assuming the game page is named "game.html"
+        window.location.href = "game.html";
+    });
+}
+
     }
 }
 // Construct the class
