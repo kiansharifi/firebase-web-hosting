@@ -6,10 +6,14 @@ class Game {
 
         // Define the shapes (example rectangles here)
         this.shapes = [
-            { x: 50, y: 50, width: 50, height: 50, name: 'Main' },
-            { x: 150, y: 150, width: 50, height: 50, name: 'collectable' },
-            { x: 250, y: 250, width: 50, height: 50, name: 'collectable' }
+            { x: 10, y: 300, width: 10, height: 60, name: 'Paddle1' },
+            { x: 580, y: 300, width: 10, height: 60, name: 'Paddle2' },
+            { x: 295, y: 390, width: 10, height: 10, name: 'Ball', dx: 2, dy: -2 }
         ];
+
+        // Initialize scores for both players
+        this.player1Score = 0;
+        this.player2Score = 0;
 
         // Start game loop
         this.update();
@@ -41,24 +45,87 @@ class Game {
             this.ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
         }
 
-        // Display the score
         this.displayScore();
     }
 
     handleInput(e) {
-        // Current position and dimensions of the 'Main' shape
-        const mainShape = this.shapes[0];
-        const moveSpeed = 10;
+        const PADDLE_SPEED = 20;
 
-        if (e.key === 'ArrowRight' && mainShape.x + mainShape.width + moveSpeed <= this.canvas.width) {
-            mainShape.x += moveSpeed;
-        } else if (e.key === 'ArrowDown' && mainShape.y + mainShape.height + moveSpeed <= this.canvas.height) {
-            mainShape.y += moveSpeed;
-        } else if (e.key === 'ArrowUp' && mainShape.y - moveSpeed >= 0) {
-            mainShape.y -= moveSpeed;
-        } else if (e.key === 'ArrowLeft' && mainShape.x - moveSpeed >= 0) {
-            mainShape.x -= moveSpeed;
+        // Player 1 controls
+        if (e.key === 'w' && this.shapes[0].y > 0) {
+            this.shapes[0].y -= PADDLE_SPEED;
+        } else if (e.key === 's' && this.shapes[0].y + this.shapes[0].height < this.canvas.height) {
+            this.shapes[0].y += PADDLE_SPEED;
         }
+
+        // Player 2 controls
+        if (e.key === 'ArrowUp' && this.shapes[1].y > 0) {
+            this.shapes[1].y -= PADDLE_SPEED;
+        } else if (e.key === 'ArrowDown' && this.shapes[1].y + this.shapes[1].height < this.canvas.height) {
+            this.shapes[1].y += PADDLE_SPEED;
+        }
+    }
+    updateBall() {
+        let ball = this.shapes[2];
+        const BALL_SPEED_INCREASE = 3; // factor to make the ball move faster
+        
+        ball.x += ball.dx * BALL_SPEED_INCREASE;
+        ball.y += ball.dy * BALL_SPEED_INCREASE;
+
+        // Ball collision with top and bottom
+        if (ball.y <= 0 || ball.y + ball.height >= this.canvas.height) {
+            ball.dy = -ball.dy;
+        }
+
+        // Ball collision with paddles
+        if ((ball.dx > 0 && this.checkCollision(ball, this.shapes[1])) ||
+            (ball.dx < 0 && this.checkCollision(ball, this.shapes[0]))) {
+            ball.dx = -ball.dx;
+        }
+
+        // Ball goes out of bounds
+        if (ball.x < 0 || ball.x > this.canvas.width) {
+            // Player 2 scores if ball goes out on the left side, and vice versa
+            if (ball.x < 0) this.player2Score++;
+            else this.player1Score++;
+
+            // Reset the ball's position and direction
+            ball.x = 295;
+            ball.y = 390;
+            ball.dx = -ball.dx;
+        }
+    }
+    displayScore() {
+        // Save the current context state
+        this.ctx.save();
+
+        this.ctx.font = '24px Arial';
+        this.ctx.fillStyle = 'black'; // Assuming you want the score in black color. Adjust as necessary.
+        this.ctx.textAlign = 'center'; // Center the text based on the given x position
+
+        // Adjust these coordinates as necessary
+        this.ctx.fillText(this.player1Score, this.canvas.width / 4, 30);
+        this.ctx.fillText(this.player2Score, (3 * this.canvas.width) / 4, 30);
+
+        // Restore the context state to what it was before
+        this.ctx.restore();
+    }
+
+    checkForWinner() {
+        if (this.player1Score >= 5) {
+            this.displayWinner('Player 1 Wins!');
+            return true;
+        } else if (this.player2Score >= 5) {
+            this.displayWinner('Player 2 Wins!');
+            return true;
+        }
+        return false;
+    }
+
+    displayWinner(message) {
+        this.ctx.font = '36px Arial';
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillText(message, this.canvas.width / 2 - 100, this.canvas.height / 2);
     }
 
     checkCollision(obj1, obj2) {
@@ -93,31 +160,39 @@ class Game {
         this.shapes.push(newShape);
     }
 
-
     update() {
         this.redraw();
 
-        // Loop through each shape to check for collisions with the "Main" shape
-        for (let i = 1; i < this.shapes.length; i++) {
-            if (this.checkCollision(this.shapes[0], this.shapes[i])) {
-                console.log(`Collision detected between Main and shape ${i}!`);
-
-                // Increase the score
-                this.score++;
-
-                // Remove the colliding shape from the array
-                this.shapes.splice(i, 1);
-
-                // Decrease index so we don't skip the next shape due to the splice operation
-                i--;
-
-                // Spawn a new collectable shape
-                this.spawnCollectable();
-            }
+        if (!this.checkForWinner()) {
+            this.updateBall();
+            requestAnimationFrame(() => this.update());
         }
-
-        requestAnimationFrame(() => this.update());
     }
+
+    // update() {
+    //     this.redraw();
+
+    //     // Loop through each shape to check for collisions with the "Main" shape
+    //     for (let i = 1; i < this.shapes.length; i++) {
+    //         if (this.checkCollision(this.shapes[0], this.shapes[i])) {
+    //             console.log(`Collision detected between Main and shape ${i}!`);
+
+    //             // Increase the score
+    //             this.score++;
+
+    //             // Remove the colliding shape from the array
+    //             this.shapes.splice(i, 1);
+
+    //             // Decrease index so we don't skip the next shape due to the splice operation
+    //             i--;
+
+    //             // Spawn a new collectable shape
+    //             this.spawnCollectable();
+    //         }
+    //     }
+
+    //     requestAnimationFrame(() => this.update());
+    // }
 
 
 }
